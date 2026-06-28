@@ -1,0 +1,26 @@
+# Basic test policy — used by toml-policy tests
+default_action = "deny"
+
+[tool_defaults]
+read = "allow"
+
+[[read_rules]]
+action = "allow"
+path = "/home/project/**"
+
+[[read_rules]]
+action = "deny"
+path = "/home/project/secrets/**"
+
+[[write_rules]]
+action = "allow"
+path = "/home/project/output/**"
+
+[[bash_rules]]
+action = "allow"
+command_regex = "^(cat|head|echo|ls)$"
+
+[[bash_rules]]
+action = "deny"
+command_regex = "^rm$"
+flags_forbidden = ["-rf"]

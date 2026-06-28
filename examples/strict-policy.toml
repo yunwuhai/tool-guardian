@@ -1,0 +1,121 @@
+# =============================================================================
+# tool-guardian — Strict Policy Example
+#
+# This is a fail-closed policy: everything is denied unless explicitly allowed.
+# Use this as a starting template for your own policies.
+# =============================================================================
+
+# Global default: deny everything unless explicitly allowed
+default_action = "deny"
+
+# Per-tool overrides for the default action
+[tool_defaults]
+read = "allow"     # Reading is generally safe
+grep = "allow"     # Grep is read-only
+find = "allow"     # Find is read-only
+ls = "allow"       # Ls is read-only
+write = "deny"     # Writing must be explicitly granted
+edit = "deny"      # Editing must be explicitly granted
+bash = "deny"      # Bash must be explicitly granted
+
+# =============================================================================
+# Read rules
+# =============================================================================
+
+# Allow reading everything under the project
+[[read_rules]]
+action = "allow"
+path = "/home/user/project/**"
+comment = "Allow reading all project files"
+
+# But deny secrets
+[[read_rules]]
+action = "deny"
+path = "/home/user/project/secrets/**"
+comment = "Never allow reading secrets"
+
+[[read_rules]]
+action = "deny"
+path = "/home/user/project/.env"
+comment = "Never allow reading .env files"
+
+# =============================================================================
+# Write rules
+# =============================================================================
+
+# Allow writing to output and build directories
+[[write_rules]]
+action = "allow"
+path = "/home/user/project/output/**"
+comment = "Allow writing build artifacts"
+
+[[write_rules]]
+action = "allow"
+path = "/home/user/project/src/**"
+comment = "Allow writing source code"
+
+# =============================================================================
+# Bash rules
+# =============================================================================
+
+# Safe read-only commands
+[[bash_rules]]
+action = "allow"
+command_regex = "^(cat|head|tail|less|echo|pwd|date|which|whoami|env|wc)$"
+comment = "Allow safe read-only commands"
+
+# ls within project — any common flag combination is allowed
+# NOTE: required_flags is NOT used here because ls flags are typically used
+# independently (-la, -ltr, --sort=time, etc.). required_flags uses AND
+# semantics (all listed flags must be present), which is impractical for ls.
+# Instead, we just scope ls to the project path via path_pattern.
+[[bash_rules]]
+action = "allow"
+command_regex = "^ls$"
+path_pattern = "/home/user/project/**"
+comment = "Allow ls within project"
+
+# Safe git operations
+[[bash_rules]]
+action = "allow"
+command_regex = "^git$"
+subcommand_regex = "^(status|diff|log|branch|add|commit|push|pull|fetch|checkout|stash|remote)$"
+comment = "Allow safe git operations"
+
+# Build and test tools
+[[bash_rules]]
+action = "allow"
+command_regex = "^(npm|npx|bun|node|tsc|vite|jest)$"
+subcommand_regex = "^(install|test|run|build|lint|start|dev|ci)$"
+comment = "Allow build and test tools"
+
+# ---------------------------------------------------------------------------
+# Deny dangerous commands
+# ---------------------------------------------------------------------------
+
+[[bash_rules]]
+action = "deny"
+command_regex = "^rm$"
+flags_forbidden = ["-rf", "-fr"]
+comment = "Never allow recursive force remove"
+
+[[bash_rules]]
+action = "deny"
+command_regex = "^rm$"
+flags_forbidden = ["-r"]
+comment = "Never allow recursive remove"
+
+[[bash_rules]]
+action = "deny"
+command_regex = "^(sudo|chmod|chown|chattr|mount|umount)$"
+comment = "Block system administration commands"
+
+[[bash_rules]]
+action = "deny"
+command_regex = "^(sh|bash|zsh)$"
+comment = "Block shell spawning"
+
+[[bash_rules]]
+action = "deny"
+command_regex = "^(curl|wget)$"
+comment = "Block network requests by default"

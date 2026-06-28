@@ -1,0 +1,21 @@
+# Line-level permission test policy
+default_action = "deny"
+
+[[read_rules]]
+action = "allow"
+path = "/home/project/src/**"
+lines_begin = 1
+lines_end = 500
+comment = "Only first 500 lines are readable"
+
+[[read_rules]]
+action = "deny"
+path = "/home/project/src/secrets.ts"
+comment = "Completely block secrets file"
+
+[[write_rules]]
+action = "allow"
+path = "/home/project/src/**"
+lines_begin = 10
+lines_end = 200
+comment = "Only lines 10-200 are writable"

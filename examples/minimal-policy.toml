@@ -1,0 +1,8 @@
+# Minimal tool-guardian policy — allow reads, deny everything else
+default_action = "deny"
+
+[tool_defaults]
+read = "allow"
+grep = "allow"
+find = "allow"
+ls = "allow"

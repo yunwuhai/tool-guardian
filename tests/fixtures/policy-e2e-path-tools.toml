@@ -1,0 +1,105 @@
+# tool-guardian — E2E Path Tools Test Policy
+# =============================================================================
+# This policy is specifically designed to test the full chain from TOML
+# policy file -> CLI check command for grep/find/ls path tools.
+# =============================================================================
+
+default_action = "deny"
+
+[tool_defaults]
+read = "allow"
+write = "deny"
+edit = "deny"
+bash = "deny"
+grep = "deny"
+find = "deny"
+ls = "deny"
+
+# =============================================================================
+# Grep rules — path-based permission for grep tool
+# =============================================================================
+
+[[grep_rules]]
+action = "allow"
+path = "/home/whypc/workspace/**"
+comment = "Allow grep within workspace"
+
+[[grep_rules]]
+action = "deny"
+path = "/home/whypc/workspace/tool-guardian/node_modules/**"
+comment = "Never grep into node_modules"
+
+[[grep_rules]]
+action = "deny"
+path = "/etc/**"
+comment = "Never grep system files"
+
+# =============================================================================
+# Find rules — path-based permission for find tool
+# =============================================================================
+
+[[find_rules]]
+action = "allow"
+path = "/home/whypc/workspace/**"
+comment = "Allow find within workspace"
+
+[[find_rules]]
+action = "deny"
+path = "/home/whypc/workspace/tool-guardian/node_modules/**"
+comment = "Never find into node_modules"
+
+[[find_rules]]
+action = "deny"
+path = "/proc/**"
+comment = "Never find into /proc"
+
+# =============================================================================
+# Ls rules — path-based permission for ls tool
+# =============================================================================
+
+[[ls_rules]]
+action = "allow"
+path = "/home/whypc/workspace/**"
+comment = "Allow ls within workspace"
+
+[[ls_rules]]
+action = "deny"
+path = "/home/whypc/workspace/tool-guardian/node_modules/**"
+comment = "Never ls into node_modules"
+
+[[ls_rules]]
+action = "deny"
+path = "/dev/**"
+comment = "Never ls /dev"
+
+# =============================================================================
+# Generic rules using [[tool_rules]] — attempt to test generic configuration
+# NOTE: This uses [[tool_rules]] as described in requirements.
+# [[tool_rules]] is NOT currently supported by the parser and will be
+# treated as an unknown key.
+# =============================================================================
+
+# The following is an experimental attempt — the parser may silently
+# ignore [[tool_rules]] sections that are not in the type definition.
+
+[[tool_rules]]
+action = "allow"
+tool_regex = "^ls$"
+path_pattern = "/tmp/**"
+comment = "Generic allow rule for ls in /tmp"
+
+[[tool_rules]]
+action = "deny"
+tool_regex = "^(grep|find|ls)$"
+path_pattern = "/root/**"
+comment = "Generic deny rule for path tools in /root"
+
+# =============================================================================
+# [env] section — attempt to test environment variable configuration
+# NOTE: [env] is NOT currently supported by the parser and will be
+# treated as unknown keys.
+# =============================================================================
+
+[env]
+ALLOWED_PATHS = "/home/whypc/workspace/**"
+DENIED_PATHS = "/etc/**"

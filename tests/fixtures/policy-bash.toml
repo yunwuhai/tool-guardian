@@ -1,0 +1,28 @@
+# Bash-focused test policy
+default_action = "deny"
+
+[[bash_rules]]
+action = "allow"
+command_regex = "^(cat|head|tail|echo|pwd|date)$"
+comment = "Allow safe read-only commands"
+
+[[bash_rules]]
+action = "allow"
+command_regex = "^ls$"
+required_flags = ["-la", "-l", "-a", "-lh"]
+path_pattern = "/home/project/**"
+
+[[bash_rules]]
+action = "deny"
+command_regex = "^rm$"
+flags_forbidden = ["-rf", "-fr"]
+comment = "Never allow rm with recursive force"
+
+[[bash_rules]]
+action = "allow"
+command_regex = "^git$"
+subcommand_regex = "^(status|diff|log|add|commit)$"
+
+[[bash_rules]]
+action = "deny"
+command_regex = "^(sudo|chmod|chown)$"

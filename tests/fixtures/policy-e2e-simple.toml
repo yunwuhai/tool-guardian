@@ -1,0 +1,27 @@
+# Simple E2E test policy for path tools
+default_action = "deny"
+
+[tool_defaults]
+grep = "allow"
+find = "allow"
+ls = "allow"
+
+[[grep_rules]]
+action = "allow"
+path = "/home/whypc/workspace/**"
+comment = "Allow grep workspace"
+
+[[grep_rules]]
+action = "deny"
+path = "/home/whypc/workspace/tool-guardian/node_modules/**"
+comment = "Deny grep node_modules"
+
+[[find_rules]]
+action = "allow"
+path = "/home/whypc/workspace/**"
+comment = "Allow find workspace"
+
+[[ls_rules]]
+action = "deny"
+path = "/tmp/system-critical/**"
+comment = "Deny ls system critical"
